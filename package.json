@@ -9,10 +9,7 @@
     "cloudflare",
     "serviceworker"
   ],
-  "contributors": [
-    "Simon Y. Blackwell <syblackwell@anywhichway.com> (http://www.github.com/anywhichway)",
-    "Jacob Hummer <jcbhmr@outlook.com> (https://jcbhmr.me/)"
-  ],
+  "author": "Jacob Hummer <jcbhmr@outlook.com> (https://jcbhmr.me/)",
   "license": "MIT",
   "bugs": "https://github.com/jcbhmr/service-workers-handle-fetch.node/issues",
   "homepage": "https://github.com/jcbhmr/service-workers-handle-fetch.node#readme",
