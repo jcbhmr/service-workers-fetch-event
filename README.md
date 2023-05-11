@@ -17,7 +17,7 @@
 ## Installation
 
 ```sh
-npm install @jcbhmr/service-workers-handle-fetch.node
+npm install @jcbhmr/service-workers-fetch-event.node
 ```
 
 ⚠️ This package is intended for use with Node.js! If you're using Node.js <18
@@ -27,7 +27,7 @@ suitable polyfill like [nodejs/undici] applied to the global scope.
 ## Usage
 
 ```js
-import "@jcbhmr/service-workers-handle-fetch.node";
+import "@jcbhmr/service-workers-fetch-event.node";
 
 onfetch = (e) => e.respondWith(new Response("Hello world!"));
 ```

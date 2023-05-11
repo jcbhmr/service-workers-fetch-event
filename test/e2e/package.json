@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@jcbhmr/service-workers-fetch-event.node": "file:../.."
+  }
+}

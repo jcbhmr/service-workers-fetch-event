@@ -13,7 +13,7 @@
     "Simon Y. Blackwell <syblackwell@anywhichway.com> (http://www.github.com/anywhichway)",
     "Jacob Hummer <jcbhmr@outlook.com> (https://jcbhmr.me/)"
   ],
-  "license": "AGPL, v3.0",
+  "license": "MIT",
   "bugs": "https://github.com/jcbhmr/service-workers-handle-fetch.node/issues",
   "homepage": "https://github.com/jcbhmr/service-workers-handle-fetch.node#readme",
   "scripts": {

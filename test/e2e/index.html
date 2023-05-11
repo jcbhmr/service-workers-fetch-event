@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title>Document</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css"
+    />
+
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+  </head>
+  <body>
+    <p>Contents of <code>package.json</code></p>
+    <pre><code x-text="await (await fetch('package.json')).text()"></code></pre>
+
+    <p>Contents of <code>server.js</code></p>
+    <pre><code x-text="await (await fetch('server.js')).text()"></code></pre>
+
+    <p>JSON-ified <code>process.env</code></p>
+    <pre><code x-text="await (await fetch('/api/process-env.json')).text()"></code></pre>
+  </body>
+</html>
