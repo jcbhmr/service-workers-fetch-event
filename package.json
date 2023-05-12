@@ -2,11 +2,10 @@
   "name": "@jcbhmr/service-workers-fetch-event.node",
   "version": "1.0.0",
   "keywords": [
-    "serverless",
-    "lambda",
-    "fetchevent",
-    "cloudflare",
-    "serviceworker"
+    "nodejs",
+    "service-worker",
+    "cloudflare-workers",
+    "deno-deploy"
   ],
   "homepage": "https://github.com/jcbhmr/service-workers-fetch-event.node#readme",
   "bugs": "https://github.com/jcbhmr/service-workers-fetch-event.node/issues",
