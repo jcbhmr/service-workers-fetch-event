@@ -11,5 +11,6 @@ export default defineConfig({
       formats: ["es"],
     },
   },
-  plugins: [/* dts(), */ noBundle()],
+  // TODO: Don't run dts() in --watch mode
+  plugins: [dts(), noBundle()],
 });
