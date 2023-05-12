@@ -1,27 +1,18 @@
 import "./internal/globalthis-eventtarget/index";
-import { createServerAdapter } from "@whatwg-node/server";
-import { createServer } from "node:http";
-import type { Server } from "node:http";
-import handleStaticFileFetch from "./internal/handleStaticFileFetch";
-import handleFetch from "./handleFetch";
-import FetchEvent from "./FetchEvent";
-import type FetchEventInit from "./FetchEventInit";
-import ExtendableEvent from "./ExtendableEvent";
-import type ExtendableEventInit from "./ExtendableEventInit";
+import FetchEvent_ from "./FetchEvent";
+import type FetchEventInit_ from "./FetchEventInit";
+import ExtendableEvent_ from "./ExtendableEvent";
+import type ExtendableEventInit_ from "./ExtendableEventInit";
 import defineEventHandlerIDLAttribute from "./REF-html-event-handlers/defineEventHandlerIDLAttribute";
+import specialFetch from "./internal/specialFetch";
+import startMyServer from "./internal/startMyServer";
 
-type FetchEvent_ = FetchEvent;
-type FetchEventT = typeof FetchEvent;
-type FetchEventInit_ = FetchEventInit;
-type ExtendableEvent_ = ExtendableEvent;
-type ExtendableEventT = typeof ExtendableEvent;
-type ExtendableEventInit_ = ExtendableEventInit;
 declare global {
   type FetchEvent = FetchEvent_;
-  var FetchEvent: FetchEventT;
+  var FetchEvent: typeof FetchEvent_;
   type FetchEventInit = FetchEventInit_;
   type ExtendableEvent = ExtendableEvent_;
-  var ExtendableEvent: ExtendableEventT;
+  var ExtendableEvent: typeof ExtendableEvent_;
   type ExtendableEventInit = ExtendableEventInit_;
   var onfetch: ((this: Window, event: FetchEvent) => any) | null;
   interface WindowEventMap {
@@ -29,75 +20,18 @@ declare global {
   }
 }
 
-globalThis.FetchEvent = FetchEvent;
-globalThis.ExtendableEvent = ExtendableEvent;
+globalThis.FetchEvent = FetchEvent_;
+globalThis.ExtendableEvent = ExtendableEvent_;
 
 defineEventHandlerIDLAttribute(globalThis, "onfetch");
 
-let started = false;
-let requestOrigins: Set<string>;
-let server: Server | null | undefined;
-function start() {
-  const port = +process.env.PORT! || 8000;
-  const hostname = process.env.HOSTNAME || "localhost";
-
-  requestOrigins = new Set();
-  server = createServer(
-    createServerAdapter(async (request) => {
-      // This is actually a polyfilled Request instance, so we need to convert
-      // it to a native Request instance. The URL is always set to
-      // http://localhost by the @whatwg-node/server polyfill, so we need to fix
-      // that too.
-      const url = new URL(request.url);
-      url.host = request.headers.get("Host") ?? hostname + ":" + port;
-      request = new Request(url, request);
-
-      // The http fetch invokes Handle Fetch with request. As a result of
-      // performing Handle Fetch, the service worker returns a response to the
-      // http fetch. The response, represented by a Response object, can be
-      // retrieved from a Cache object or directly from network using
-      // self.fetch(input, init) method. (A custom Response object can be
-      // another option.)
-      requestOrigins.add(new URL(request.url).origin);
-      console.debug(requestOrigins);
-      const possibleResponse = await handleFetch(request, undefined, true);
-      return (
-        possibleResponse ??
-        (await handleStaticFileFetch(request)) ??
-        new Response(null, { status: 404 })
-      );
-    })
-  );
-  server.listen({ host: hostname, port });
-}
-
-const globalThis_addEventListener_OLD = globalThis.addEventListener;
-globalThis.addEventListener = function ($1, $2) {
-  const returnValue = globalThis_addEventListener_OLD.call(this, ...arguments);
-
-  const kEvents = Object.getOwnPropertySymbols(globalThis).find(
-    (s) => s.description === "kEvents"
-  )!;
-  if (globalThis[kEvents].get("fetch")?.size >= 1) {
-    if (!started) {
-      started = true;
-      start();
-    }
-  }
-
-  return returnValue;
-};
-
-const fetch_OLD = fetch;
+// This fetch patch doesn't apply to http.request() and https.request()! That
+// means you'll need to be extra careful not to go into an infinite loop. But
+// that's way less common. The pitfall that this patch solves is this:
+//
+//   onfetch = e => e.respondWith(fetch(e.request));
+//
 // @ts-ignore
-fetch = function ($1) {
-  if (started) {
-    // @ts-ignore
-    const request = new Request(...arguments);
-    if (requestOrigins.has(new URL(request.url).origin)) {
-      return handleStaticFileFetch(request) ?? Response.error();
-    }
-  }
+fetch = specialFetch;
 
-  return fetch_OLD.call(this, ...arguments);
-};
+await startMyServer();
