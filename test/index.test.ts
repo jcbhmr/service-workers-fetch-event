@@ -1,39 +1,59 @@
-import { test, expect, assert } from "vitest";
 import "../src/index";
+import { test, expect, assert } from "vitest";
 
 test("onfetch is global", () => {
   expect(globalThis.onfetch).toBeDefined();
 });
 
-test("it starts as soon as onfetch is set", async () => {
-  const response1 = await fetch("http://localhost:8000/README.md").catch(
-    () => null
-  );
-  expect(response1?.status).not.toBe(200);
-
-  onfetch = () => {};
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  const response2 = await fetch("http://localhost:8000/README.md");
-  const text2 = await response2.text();
-  expect(response2.status).toBe(200);
-  expect(text2.length).toBeGreaterThan(0);
+test("it forwards to static files", async () => {
+  const response = await fetch("http://localhost:8080/README.md");
+  const text = await response.text();
+  expect(response.status).toBe(200);
+  expect(text.length).toBeGreaterThan(0);
 });
 
-test("switching out onfetch changes the server", async () => {
+test("it works with a custom handler", async () => {
   onfetch = (e) => e.respondWith(new Response("Hello, world!"));
-  await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  const response1 = await fetch("http://localhost:8000/README.md");
-  const text1 = await response1.text();
-  expect(response1.status).toBe(200);
-  expect(text1).toBe("Hello, world!");
+  const response = await fetch("http://localhost:8080/README.md");
+  const text = await response.text();
+  expect(response.status).toBe(200);
+  expect(text).toBe("Hello, world!");
+});
 
-  onfetch = (e) => e.respondWith(new Response("Goodbye, world!"));
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+test("it works with a custom handler that returns a promise", async () => {
+  onfetch = (e) =>
+    e.respondWith(Promise.resolve(new Response("Hello, world!")));
 
-  const response2 = await fetch("http://localhost:8000/README.md");
+  const response = await fetch("http://localhost:8080/README.md");
+  const text = await response.text();
+  expect(response.status).toBe(200);
+  expect(text).toBe("Hello, world!");
+});
+
+test("it works with a handler and static files", async () => {
+  onfetch = (e) => {
+    if (e.request.url === "http://localhost:8080/api/hello") {
+      e.respondWith(new Response("Hello, world!"));
+    }
+  };
+
+  const response = await fetch("http://localhost:8080/README.md");
+  const text = await response.text();
+  expect(response.status).toBe(200);
+  expect(text.length).toBeGreaterThan(0);
+
+  const response2 = await fetch("http://localhost:8080/api/hello");
   const text2 = await response2.text();
   expect(response2.status).toBe(200);
-  expect(text2).toBe("Goodbye, world!");
+  expect(text2).toBe("Hello, world!");
+});
+
+test("it works with .respondWith(fetch())", async () => {
+  onfetch = (e) => e.respondWith(fetch(e.request));
+
+  const response = await fetch("http://localhost:8080/README.md");
+  const text = await response.text();
+  expect(response.status).toBe(200);
+  expect(text.length).toBeGreaterThan(0);
 });
