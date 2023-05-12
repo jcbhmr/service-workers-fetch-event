@@ -1,5 +1,5 @@
 {
-  "name": "@jcbhmr/service-workers-handle-fetch.node",
+  "name": "@jcbhmr/service-workers-fetch-event.node",
   "version": "1.0.0",
   "keywords": [
     "serverless",
@@ -8,9 +8,9 @@
     "cloudflare",
     "serviceworker"
   ],
-  "homepage": "https://github.com/jcbhmr/service-workers-handle-fetch.node#readme",
-  "bugs": "https://github.com/jcbhmr/service-workers-handle-fetch.node/issues",
-  "repository": "github:jcbhmr/service-workers-handle-fetch.node",
+  "homepage": "https://github.com/jcbhmr/service-workers-fetch-event.node#readme",
+  "bugs": "https://github.com/jcbhmr/service-workers-fetch-event.node/issues",
+  "repository": "github:jcbhmr/service-workers-fetch-event.node",
   "license": "MIT",
   "author": "Jacob Hummer <jcbhmr@outlook.com> (https://jcbhmr.me/)",
   "type": "module",
@@ -22,15 +22,11 @@
   "files": [
     "dist"
   ],
-  "workspaces": [
-    "test/e2e"
-  ],
   "scripts": {
     "prepack": "vite build",
     "start": "vitest",
     "pretest": "prettier -w --ignore-path .gitignore .",
-    "test": "tsc --noEmit && vitest run && echo 'manual: npm run test-e2e'",
-    "test-e2e": "cd test/e2e && npm start"
+    "test": "tsc --noEmit && vitest run"
   },
   "dependencies": {
     "@whatwg-node/server": "^0.7.5",
@@ -43,6 +39,7 @@
     "prettier": "^2.8.8",
     "prettier-plugin-jsdoc": "^0.4.2",
     "prettier-plugin-packagejson": "^2.4.3",
+    "tsx": "^3.12.7",
     "typedoc": "^0.24.7",
     "typescript": "^5.0.4",
     "vite": "^4.3.5",
