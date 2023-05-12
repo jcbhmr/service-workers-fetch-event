@@ -1,5 +1,5 @@
-export default function Response_internalServerError(error: Error): Response {
-  return new Response(error?.stack ?? "" + error, {
+export default function Response_internalServerError(error: any): Response {
+  return new Response("" + (error?.stack || error), {
     status: 500,
     statusText: "Internal Server Error",
     headers: {
