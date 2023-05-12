@@ -1,16 +1,21 @@
-import asyncWaitUntil_pkg from "async-wait-until";
 import FetchEvent, {
   potentialResponse,
   respondWithEnteredFlag,
   respondWithErrorFlag,
   waitToRespondFlag,
 } from "./FetchEvent";
+import * as asyncWaitUntil_pkg from "async-wait-until";
 
+var waitUntil: typeof asyncWaitUntil_pkg.waitUntil;
 // This is a hack to get around the fact that the async-wait-until package
 // is a CommonJS package, and thus doesn't ACTUALLY named-export the
-// waitUntil function. This is a hack to get around that.
-// @ts-ignore
-const waitUntil = asyncWaitUntil_pkg.waitUntil as typeof asyncWaitUntil_pkg;
+// waitUntil function. Except sometimes it is a named export. It's weird.
+if (typeof asyncWaitUntil_pkg.waitUntil === "function") {
+  waitUntil = asyncWaitUntil_pkg.waitUntil;
+} else {
+  // @ts-ignore
+  waitUntil = asyncWaitUntil_pkg.default.waitUntil;
+}
 
 async function handleFetch(
   request: Request,
@@ -107,7 +112,8 @@ async function handleFetch(
 
     // If response is not null, then set response’s service worker timing info to timingInfo.
     if (response != null) {
-      // response.serviceWorkerTimingInfo = timingInfo
+      // @ts-ignore
+      response.serviceWorkerTimingInfo = timingInfo;
     }
 
     // If e’s canceled flag is set, set eventCanceled to true.
@@ -150,8 +156,9 @@ async function handleFetch(
       eventHandled_reject(new DOMException(undefined, "NetworkError"));
     }
 
+    // TODO: Make sure this is right!
     // Return a network error.
-    return new Response(null, { status: 500 });
+    throw new DOMException(undefined, "NetworkError");
   }
 
   // If eventHandled is not null, then resolve eventHandled.
