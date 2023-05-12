@@ -6,6 +6,7 @@ import FetchEvent, {
 } from "./FetchEvent";
 import * as asyncWaitUntil_pkg from "async-wait-until";
 
+// TODO: Use native signals (promises) instead of polling
 var waitUntil: typeof asyncWaitUntil_pkg.waitUntil;
 // This is a hack to get around the fact that the async-wait-until package
 // is a CommonJS package, and thus doesn't ACTUALLY named-export the
@@ -17,6 +18,7 @@ if (typeof asyncWaitUntil_pkg.waitUntil === "function") {
   waitUntil = asyncWaitUntil_pkg.default.waitUntil;
 }
 
+// TODO: Properly number these steps
 async function handleFetch(
   request: Request,
   controller: any,
