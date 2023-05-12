@@ -23,7 +23,10 @@ declare global {
   type ExtendableEvent = ExtendableEvent_;
   var ExtendableEvent: ExtendableEventT;
   type ExtendableEventInit = ExtendableEventInit_;
-  var onfetch: EventListener | null;
+  var onfetch: ((this: Window, event: FetchEvent) => any) | null;
+  interface WindowEventMap {
+    fetch: FetchEvent;
+  }
 }
 
 globalThis.FetchEvent = FetchEvent;
@@ -41,7 +44,14 @@ function start() {
   requestOrigins = new Set();
   server = createServer(
     createServerAdapter(async (request) => {
-      request = new Request(request.url, request);
+      // This is actually a polyfilled Request instance, so we need to convert
+      // it to a native Request instance. The URL is always set to
+      // http://localhost by the @whatwg-node/server polyfill, so we need to fix
+      // that too.
+      const url = new URL(request.url);
+      url.host = request.headers.get("Host") ?? hostname + ":" + port;
+      request = new Request(url, request);
+
       // The http fetch invokes Handle Fetch with request. As a result of
       // performing Handle Fetch, the service worker returns a response to the
       // http fetch. The response, represented by a Response object, can be
@@ -49,6 +59,7 @@ function start() {
       // self.fetch(input, init) method. (A custom Response object can be
       // another option.)
       requestOrigins.add(new URL(request.url).origin);
+      console.debug(requestOrigins);
       const possibleResponse = await handleFetch(request, undefined, true);
       return (
         possibleResponse ??
@@ -84,7 +95,7 @@ fetch = function ($1) {
     // @ts-ignore
     const request = new Request(...arguments);
     if (requestOrigins.has(new URL(request.url).origin)) {
-      return handleStaticFileFetch(request);
+      return handleStaticFileFetch(request) ?? Response.error();
     }
   }
 

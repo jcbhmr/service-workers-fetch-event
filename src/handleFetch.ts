@@ -131,7 +131,7 @@ async function handleFetch(
       }
 
       // Return a network error.
-      return new Response(null, { status: 500 });
+      return Response.error();
     }
 
     // If eventHandled is not null, then resolve eventHandled.
