@@ -1,8 +1,22 @@
+import asyncWaitUntil_pkg from "async-wait-until";
+import FetchEvent, {
+  potentialResponse,
+  respondWithEnteredFlag,
+  respondWithErrorFlag,
+  waitToRespondFlag,
+} from "./FetchEvent";
+
+// This is a hack to get around the fact that the async-wait-until package
+// is a CommonJS package, and thus doesn't ACTUALLY named-export the
+// waitUntil function. This is a hack to get around that.
+// @ts-ignore
+const waitUntil = asyncWaitUntil_pkg.waitUntil as typeof asyncWaitUntil_pkg;
+
 async function handleFetch(
   request: Request,
   controller: any,
   useHighResPerformanceTimers: boolean
-): Promise<Response> {
+): Promise<Response | null> {
   // 1. Let handleFetchFailed be false.
   let handleFetchFailed = false;
 
@@ -13,15 +27,13 @@ async function handleFetch(
   let eventCanceled = false;
 
   // 4. Let response be null.
-  let response = null;
-
-  // 5. Let registration be null.
-  let registration = null;
+  let response = null as Response | null;
 
   // 10. Let eventHandled be null.
-  let eventHandled = null;
+  let eventHandled = null as Promise<undefined> | null;
 
   // 12. Assert: request’s destination is not "serviceworker".
+  // @ts-ignore
   console.assert(request.destination !== "serviceworker");
 
   // 13. If request’s destination is either "embed" or "object", then:
@@ -30,24 +42,17 @@ async function handleFetch(
     return null;
   }
 
-  // If the result of running the Should Skip Event algorithm with "fetch" and activeWorker is true, then:
-  if (shouldSkipEvent("fetch", undefined)) {
-    // 2. Return null.
-    return null;
-  }
-
-  // If activeWorker’s all fetch listeners are empty flag is set:
-  if (allFetchListenersAreEmpty) {
-    // 1. Return null.
-    return null;
-  }
-
   // Let timingInfo’s start time be the coarsened shared current time given useHighResPerformanceTimers.
-  const timingInfo = {};
+  const timingInfo = {} as any;
   timingInfo.startTime = performance.now();
 
   // Set eventHandled to a new promise in workerRealm.
-  eventHandled = new Promise();
+  let eventHandled_resolve: (value?: undefined) => void = undefined as any;
+  let eventHandled_reject: (reason?: any) => void = undefined as any;
+  eventHandled = new Promise((resolve, reject) => {
+    eventHandled_resolve = resolve;
+    eventHandled_reject = reject;
+  });
 
   // Queue a task task to run the following substeps:
   const task = (async () => {
@@ -67,7 +72,11 @@ async function handleFetch(
     timingInfo.fetchEventDispatchTime = performance.now();
 
     // Dispatch e at activeWorker’s global object.
-    globalThis.dispatchEvent(e);
+    try {
+      globalThis.dispatchEvent(e);
+    } catch (error) {
+      Promise.reject(error);
+    }
 
     // If e’s respond-with entered flag is set, set respondWithEntered to true.
     if (respondWithEnteredFlag.get(e)) {
@@ -77,7 +86,7 @@ async function handleFetch(
     // If e’s wait to respond flag is set, then:
     if (waitToRespondFlag.get(e)) {
       // Wait until e’s wait to respond flag is unset.
-      await waitUntil(() => !respondFlag.get(e));
+      await waitUntil(() => !waitToRespondFlag.get(e));
 
       // If e’s respond-with error flag is set, set handleFetchFailed to true.
       if (respondWithErrorFlag.get(e)) {
@@ -86,7 +95,7 @@ async function handleFetch(
 
       // Else, set response to e’s potential response.
       else {
-        response = e.potentialResponse;
+        response = potentialResponse.get(e)!;
       }
     }
 
@@ -153,3 +162,5 @@ async function handleFetch(
   // Return response.
   return response;
 }
+
+export default handleFetch;

@@ -1,5 +1,5 @@
 if (typeof onfetch !== "undefined") {
-  process.emitWarning();
+  process.emitWarning("onfetch is already defined");
 }
 
 // Unconditionally apply the polyfill to the global scope. If it fails, it's

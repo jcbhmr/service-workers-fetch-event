@@ -1,3 +1,4 @@
+import ExtendableEvent from "./ExtendableEvent";
 import FetchEventInit from "./FetchEventInit";
 
 const waitToRespondFlag = new WeakMap<FetchEvent, boolean | null | undefined>();
@@ -9,8 +10,18 @@ const respondWithErrorFlag = new WeakMap<
   FetchEvent,
   boolean | null | undefined
 >();
+const potentialResponse = new WeakMap<
+  FetchEvent,
+  Response | null | undefined
+>();
 
 class FetchEvent extends ExtendableEvent {
+  #request: Request;
+  #preloadResponse?: Promise<any>;
+  #clientId: string;
+  #resultingClientId: string;
+  #replacesClientId: string;
+  #handled?: Promise<undefined>;
   constructor(type: string, eventInitDict_: FetchEventInit) {
     type = "" + type;
     const eventInitDict = FetchEventInit.from(eventInitDict_);
@@ -25,8 +36,32 @@ class FetchEvent extends ExtendableEvent {
     this.#handled = eventInitDict.handled;
   }
 
-  respondWith(r: PromiseLike<Response> | Response): void {
-    r = Promise.resolve(r);
+  get request(): Request {
+    return this.#request;
+  }
+
+  get preloadResponse(): Promise<any> | undefined {
+    return this.#preloadResponse;
+  }
+
+  get clientId(): string {
+    return this.#clientId;
+  }
+
+  get resultingClientId(): string {
+    return this.#resultingClientId;
+  }
+
+  get replacesClientId(): string {
+    return this.#replacesClientId;
+  }
+
+  get handled(): Promise<undefined> | undefined {
+    return this.#handled;
+  }
+
+  respondWith(r_: PromiseLike<Response> | Response): void {
+    const r = Promise.resolve(r_);
     // respondWith(r) method steps are:
 
     // 1. Let event be this.
@@ -59,7 +94,7 @@ class FetchEvent extends ExtendableEvent {
     // 9. Upon rejection of r:
     r.catch((reason) => {
       // 1. Set event’s respond-with error flag.
-      respondWithErrorFlag.set(event);
+      respondWithErrorFlag.set(event, true);
 
       // 2. Unset event’s wait to respond flag.
       waitToRespondFlag.delete(event);
@@ -88,10 +123,10 @@ class FetchEvent extends ExtendableEvent {
         let done = false;
 
         // 4. Let potentialResponse be a copy of response’s associated response, except for its body.
-        const potentialResponse = new Response(response.body, response);
+        const potentialResponse_ = new Response(response.body, response);
 
         // 6. Set event’s potential response to potentialResponse.
-        event.#potentialResponse = potentialResponse;
+        potentialResponse.set(event, potentialResponse_);
 
         // 7. Unset event’s wait to respond flag.
         waitToRespondFlag.delete(event);
@@ -101,3 +136,9 @@ class FetchEvent extends ExtendableEvent {
 }
 
 export default FetchEvent;
+export {
+  waitToRespondFlag,
+  respondWithEnteredFlag,
+  respondWithErrorFlag,
+  potentialResponse,
+};
