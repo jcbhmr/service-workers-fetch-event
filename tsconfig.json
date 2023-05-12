@@ -9,5 +9,10 @@
     "skipLibCheck": true
   },
   "include": ["src", "test"],
-  "exclude": ["node_modules", "dist", "test/e2e"]
+  "exclude": ["node_modules", "dist", "test/e2e"],
+  "typedocOptions": {
+    "entryPoints": ["src/*.ts"],
+    "out": "docs/dist",
+    "skipErrorChecking": true
+  }
 }
