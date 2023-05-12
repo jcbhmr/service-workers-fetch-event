@@ -23,11 +23,11 @@
     "dist"
   ],
   "scripts": {
+    "build-docs": "typedoc",
     "prepack": "vite build",
     "start": "vitest",
     "pretest": "prettier -w --ignore-path .gitignore .",
-    "test": "tsc --noEmit && vitest run",
-    "build-docs": "typedoc"
+    "test": "tsc --noEmit && vitest run"
   },
   "dependencies": {
     "@whatwg-node/server": "^0.7.5",
