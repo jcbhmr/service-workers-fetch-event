@@ -6,6 +6,8 @@
 
 <div align="center">
 
+![](https://user-images.githubusercontent.com/61068799/237858711-f90be239-ca6d-40e4-9cf9-51f22d841064.png)
+
 </div>
 
 🌟 Uses web-native `Request` and `Response` \
@@ -29,7 +31,13 @@ suitable polyfill like [nodejs/undici] applied to the global scope.
 ```js
 import "@jcbhmr/service-workers-fetch-event.node";
 
-onfetch = (e) => e.respondWith(new Response("Hello world!"));
+onfetch = (e) => {
+  const url = new URL(e.request.url);
+  console.debug(e.request.method, url.pathname);
+  if (url.pathname === "/api/datetime.txt") {
+    e.respondWith(new Response(new Date().toISOString()));
+  }
+};
 ```
 
 ### How it works
