@@ -14,12 +14,12 @@ test("dispatching events", () => {
     eventReceived = true;
   };
 
-  globalThis.addEventListener("customEvent", eventListener);
-  globalThis.dispatchEvent(new CustomEvent("customEvent"));
+  globalThis.addEventListener("event", eventListener);
+  globalThis.dispatchEvent(new Event("event"));
 
   expect(eventReceived).toBe(true);
 
-  globalThis.removeEventListener("customEvent", eventListener);
+  globalThis.removeEventListener("event", eventListener);
 });
 
 test("adding and removing event listeners", () => {
@@ -29,14 +29,14 @@ test("adding and removing event listeners", () => {
     eventReceived = true;
   };
 
-  globalThis.addEventListener("customEvent", eventListener);
-  globalThis.dispatchEvent(new CustomEvent("customEvent"));
+  globalThis.addEventListener("event", eventListener);
+  globalThis.dispatchEvent(new Event("event"));
 
   expect(eventReceived).toBe(true);
 
   eventReceived = false;
-  globalThis.removeEventListener("customEvent", eventListener);
-  globalThis.dispatchEvent(new CustomEvent("customEvent"));
+  globalThis.removeEventListener("event", eventListener);
+  globalThis.dispatchEvent(new Event("event"));
 
   expect(eventReceived).toBe(false);
 });
@@ -48,10 +48,10 @@ test("target property of events", () => {
     targetValue = event.target;
   };
 
-  globalThis.addEventListener("customEvent", eventListener);
-  globalThis.dispatchEvent(new CustomEvent("customEvent"));
+  globalThis.addEventListener("event", eventListener);
+  globalThis.dispatchEvent(new Event("event"));
 
   expect(targetValue).toBe(globalThis);
 
-  globalThis.removeEventListener("customEvent", eventListener);
+  globalThis.removeEventListener("event", eventListener);
 });
