@@ -29,7 +29,7 @@
     "prepack": "vite build",
     "start": "vitest",
     "pretest": "prettier -w --ignore-path .gitignore .",
-    "test": "tsc --noEmit && vitest run && echo 'Make sure you manually run the E2E test!'",
+    "test": "tsc --noEmit && vitest run && echo 'manual: npm run test-e2e'",
     "test-e2e": "cd test/e2e && npm start"
   },
   "dependencies": {
