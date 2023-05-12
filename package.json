@@ -22,11 +22,15 @@
   "files": [
     "dist"
   ],
+  "workspaces": [
+    "test/e2e"
+  ],
   "scripts": {
     "prepack": "vite build",
     "start": "vitest",
     "pretest": "prettier -w --ignore-path .gitignore .",
-    "test": "tsc --noEmit && vitest run && echo 'Make sure you manually run the E2E test!'"
+    "test": "tsc --noEmit && vitest run && echo 'Make sure you manually run the E2E test!'",
+    "test-e2e": "cd test/e2e && npm start"
   },
   "dependencies": {
     "@whatwg-node/server": "^0.7.5",
