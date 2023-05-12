@@ -48,7 +48,7 @@ header to determine the host and port.
 ```
 HTTP/2
 http://localhost:8000/api/datetime.txt?foo=bar
-^^^^   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^   ^^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^^^^^^^^^
 |      |              `-- :path
 |      `-- :authority
 `-- :scheme
@@ -57,7 +57,7 @@ http://localhost:8000/api/datetime.txt?foo=bar
 ```
 HTTP/1.1
 http://localhost:8000/api/datetime.txt?foo=bar
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       ^^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^^^^^^^^^
        |              `-- pathname
        `-- Host
 ```
