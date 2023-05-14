@@ -55,6 +55,7 @@ export default function defineEventHandlerIDLAttribute<
         // 2. Let eventHandler be handlerMap[name].
         // 3. Set eventHandler's value to the given value.
         // 4. Activate an event handler given eventTarget and name.
+        this.removeEventListener(type, eventHandler.get(eventTarget)!);
         if (typeof value === "function") {
           this.addEventListener(type, value);
         }
