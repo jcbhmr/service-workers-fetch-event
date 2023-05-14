@@ -1,15 +1,27 @@
-// @ts-ignore
-import { openAsBlob } from "node:fs";
+import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import mime from "mime-types";
 import Response_notFound from "./Response_notFound";
 import Response_forbidden from "./Response_forbidden";
 import Response_methodNotAllowed from "./Response_methodNotAllowed";
 
-declare var openAsBlob: (
+let openAsBlob: (
   path: string | Buffer | URL,
   options?: { type?: string }
 ) => Promise<Blob>;
+
+// @ts-ignore
+({ openAsBlob } = await import("node:fs/promises"));
+
+if (!openAsBlob) {
+  openAsBlob = async (
+    path: string | Buffer | URL,
+    options?: { type?: string }
+  ): Promise<Blob> => {
+    const bytes = await readFile(path);
+    return new Blob([bytes], options);
+  };
+}
 
 async function fallbackHandleRequest(request: Request): Promise<Response> {
   if (request.method !== "GET" && request.method !== "HEAD") {
@@ -43,18 +55,24 @@ async function fallbackHandleRequest(request: Request): Promise<Response> {
   if (blob) {
     return new Response(blob);
   }
-
   // Means that the file couldn't be read. Most likely due to permissions.
   else if (error?.name === "NotReadableError") {
     return Response_forbidden();
   }
-
   // Means that the file doesn't exist.
   else if (
     error?.name === "TypeError" &&
     error.code === "ERR_INVALID_ARG_VALUE"
   ) {
     return Response_notFound();
+  }
+  // No such file or directory.
+  else if (error?.code === "ENOENT") {
+    return Response_notFound();
+  }
+  // Permission denied.
+  else if (error?.code === "EACCESS") {
+    return Response_forbidden();
   } else {
     throw error;
   }
