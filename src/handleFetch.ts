@@ -79,11 +79,7 @@ async function handleFetch(
     timingInfo.fetchEventDispatchTime = performance.now();
 
     // Dispatch e at activeWorker’s global object.
-    try {
-      globalThis.dispatchEvent(e);
-    } catch (error) {
-      Promise.reject(error);
-    }
+    globalThis.dispatchEvent(e);
 
     // If e’s respond-with entered flag is set, set respondWithEntered to true.
     if (respondWithEnteredFlag.get(e)) {
@@ -158,9 +154,8 @@ async function handleFetch(
       eventHandled_reject(new DOMException(undefined, "NetworkError"));
     }
 
-    // TODO: Make sure this is right!
     // Return a network error.
-    throw new DOMException(undefined, "NetworkError");
+    return Response.error();
   }
 
   // If eventHandled is not null, then resolve eventHandled.

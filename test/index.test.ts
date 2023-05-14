@@ -57,3 +57,10 @@ test("it works with .respondWith(fetch())", async () => {
   expect(response.status).toBe(200);
   expect(text.length).toBeGreaterThan(0);
 });
+
+test("it works when .respondWith() rejects", async () => {
+  onfetch = (e) => e.respondWith(Promise.reject(new Error("Oops!")));
+
+  const response = await fetch("http://localhost:8080/README.md");
+  expect(response.status).toBe(500);
+});

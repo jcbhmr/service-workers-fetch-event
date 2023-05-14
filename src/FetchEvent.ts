@@ -100,7 +100,7 @@ class FetchEvent extends ExtendableEvent {
       waitToRespondFlag.delete(event);
 
       // Propagate error
-      throw reason;
+      process.emitWarning(reason);
     });
 
     // 10. Upon fulfillment of r with response:
