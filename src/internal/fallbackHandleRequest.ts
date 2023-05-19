@@ -8,7 +8,7 @@ import Response_methodNotAllowed from "./Response_methodNotAllowed";
 const openAsBlob =
   // @ts-ignore
   (await import("node:fs").then((m) => m.openAsBlob)) ??
-  (await import("./openAsBlob").then((m) => m.default));
+  (await import("./node-fs-openAsBlob").then((m) => m.default));
 
 async function fallbackHandleRequest(request: Request): Promise<Response> {
   if (request.method !== "GET" && request.method !== "HEAD") {

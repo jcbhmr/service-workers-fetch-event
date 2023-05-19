@@ -4,62 +4,18 @@ import FetchEvent, {
   respondWithErrorFlag,
   waitToRespondFlag,
 } from "./FetchEvent";
-import * as asyncWaitUntil_pkg from "async-wait-until";
 
-// TODO: Use native signals (promises) instead of polling
-var waitUntil: typeof asyncWaitUntil_pkg.waitUntil;
-// This is a hack to get around the fact that the async-wait-until package
-// is a CommonJS package, and thus doesn't ACTUALLY named-export the
-// waitUntil function. Except sometimes it is a named export. It's weird.
-if (typeof asyncWaitUntil_pkg.waitUntil === "function") {
-  waitUntil = asyncWaitUntil_pkg.waitUntil;
-} else {
-  // @ts-ignore
-  waitUntil = asyncWaitUntil_pkg.default.waitUntil;
-}
-
-// TODO: Properly number these steps
+/** @see https://w3c.github.io/ServiceWorker/#handle-fetch */
 async function handleFetch(
   request: Request,
   controller: any,
   useHighResPerformanceTimers: boolean
 ): Promise<Response | null> {
-  // 1. Let handleFetchFailed be false.
-  let handleFetchFailed = false;
-
-  // 2. Let respondWithEntered be false.
-  let respondWithEntered = false;
-
-  // 3. Let eventCanceled be false.
-  let eventCanceled = false;
-
-  // 4. Let response be null.
-  let response = null as Response | null;
-
-  // 10. Let eventHandled be null.
-  let eventHandled = null as Promise<undefined> | null;
-
-  // 12. Assert: request’s destination is not "serviceworker".
-  // @ts-ignore
-  console.assert(request.destination !== "serviceworker");
-
-  // 13. If request’s destination is either "embed" or "object", then:
-  if (request.destination === "embed" || request.destination === "object") {
-    // 1. Return null.
-    return null;
-  }
-
-  // Let timingInfo’s start time be the coarsened shared current time given useHighResPerformanceTimers.
   const timingInfo = {} as any;
   timingInfo.startTime = performance.now();
 
   // Set eventHandled to a new promise in workerRealm.
-  let eventHandled_resolve: (value?: undefined) => void = undefined as any;
-  let eventHandled_reject: (reason?: any) => void = undefined as any;
-  eventHandled = new Promise((resolve, reject) => {
-    eventHandled_resolve = resolve;
-    eventHandled_reject = reject;
-  });
+  const eventHandled = pDefer()
 
   // Queue a task task to run the following substeps:
   const task = (async () => {
