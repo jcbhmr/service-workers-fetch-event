@@ -42,7 +42,7 @@
     "tsx": "^3.12.7",
     "typedoc": "^0.24.7",
     "typescript": "^5.0.4",
-    "vite": "^4.3.5",
+    "vite": "^4.5.2",
     "vite-plugin-dts": "^2.3.0",
     "vite-plugin-no-bundle": "^2.0.2",
     "vitest": "^0.31.0"
